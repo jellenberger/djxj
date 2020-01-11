@@ -1,2 +1,3 @@
-# DJXJ
-This is my fork of [djangox](https;//github.com/wsvincent/djangox).
+# Djxj
+
+This is my fork of [djangox](https://github.com/wsvincent/djangox).
