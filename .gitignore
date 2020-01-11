@@ -1,1 +1,20 @@
+# Secret or Unnecessary
+.env
+staticfiles/
+
+# Editors
+.vscode
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Markdown notes, but not any README*.md
+*.md
+!README*.md
+
+# Python
+__pycache__/
+
+# OS leftovers
 .DS_Store
+._*
