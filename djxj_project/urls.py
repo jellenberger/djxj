@@ -10,7 +10,8 @@ urlpatterns = [
     path("", include("pages.urls")),
 ]
 
-# debug toolbar
+# In debug, add url to django-debug-toolbar
 if settings.DEBUG:
     import debug_toolbar
+
     urlpatterns = [path("__debug__/", include(debug_toolbar.urls)),] + urlpatterns

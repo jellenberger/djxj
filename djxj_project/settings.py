@@ -12,30 +12,31 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import socket
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
+# Development vs production settings
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", default="False") == "True"
-
 # Get environment type
 PRODUCTION = os.environ.get("PRODUCTION", default="True") == "True"
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get("DEBUG", default="False") == "True"
+
 # SECURITY WARNING: don't run with wildcard hosts in production!
-if DEBUG:
-    ALLOWED_HOSTS = ["*"]
+# If PRODUCTION, then include host name specified in environment var
+if PRODUCTION:
+    ALLOWED_HOSTS = [].append(os.environ.get("HOST_NAME"))
+    ALLOWED_HOSTS.extend(["localhost", "127.0.0.1"])
 else:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -52,12 +53,15 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "crispy_forms",
-    "debug_toolbar",  # TODO make conditional on Debug?
     # Local
     "users",
     "pages",
     "django_extensions",
 ]
+# In debug, add django-debug-toolbar
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -67,8 +71,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",  # TODO make conditional on Debug?
 ]
+# In debug, add django-debug-toolbar after commonMiddleware
+if DEBUG:
+    mwidx = MIDDLEWARE.index("django.middleware.common.CommonMiddleware")
+    MIDDLEWARE.insert(mwidx + 1, "debug_toolbar.middleware.DebugToolbarMiddleware")
+
 
 ROOT_URLCONF = "djxj_project.urls"
 
@@ -141,16 +149,21 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
-# Enabled for django-debug-toolbar to work
+
+# In debug, enable internal ips for django-debug-toolbar
 # https://docs.djangoproject.com/en/3.0/ref/settings/#internal-ips
-# TODO: make conditional on debug? If so, import socket here
-hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
+
+if DEBUG:
+    import socket
+
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
 
 
 AUTH_USER_MODEL = "users.CustomUser"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 
 # Django-Allauth Config
 
