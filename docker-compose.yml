@@ -7,9 +7,10 @@ services:
     command: ["wait-for-it", "db:5432", "--", "python", "manage.py", "runserver", "0.0.0.0:8000"]
     environment:
       - SECRET_KEY=$SECRET_KEY
-      - DEBUG=1
-      - POSTGRES_DB=garden
-      - POSTGRES_USER=garden
+      - DEBUG=True
+      - PRODUCTION=False
+      - POSTGRES_DB=$DB_NAME
+      - POSTGRES_USER=$DB_NAME
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 
     volumes:
@@ -21,8 +22,8 @@ services:
   db:
     image: postgres:11-alpine
     environment:
-      - POSTGRES_DB=garden
-      - POSTGRES_USER=garden
+      - POSTGRES_DB=$DB_NAME
+      - POSTGRES_USER=$DB_NAME
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 
     volumes:

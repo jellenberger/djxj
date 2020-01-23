@@ -26,7 +26,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get("DEBUG", default=0))
+DEBUG = os.environ.get("DEBUG", default="False") == "True"
+
+# Get environment type
+PRODUCTION = os.environ.get("PRODUCTION", default="True") == "True"
 
 # SECURITY WARNING: don't run with wildcard hosts in production!
 if DEBUG:
@@ -49,7 +52,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "crispy_forms",
-    "debug_toolbar", # TODO make conditional on Debug?
+    "debug_toolbar",  # TODO make conditional on Debug?
     # Local
     "users",
     "pages",
