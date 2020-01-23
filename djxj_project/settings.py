@@ -33,7 +33,7 @@ DEBUG = os.environ.get("DEBUG", default="False") == "True"
 # SECURITY WARNING: don't run with wildcard hosts in production!
 # If PRODUCTION, then include host name specified in environment var
 if PRODUCTION:
-    ALLOWED_HOSTS = [].append(os.environ.get("HOST_NAME"))
+    ALLOWED_HOSTS = [os.environ.get("EXTERNAL_HOST_NAME")]
     ALLOWED_HOSTS.extend(["localhost", "127.0.0.1"])
 else:
     ALLOWED_HOSTS = ["*"]
@@ -183,3 +183,18 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
+
+
+# Production security settings
+
+if PRODUCTION:
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = "DENY"
+    SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True

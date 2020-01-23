@@ -7,15 +7,12 @@ services:
     command: ["wait-for-it", "db:5432", "--", "python", "manage.py", "runserver", "0.0.0.0:8000"]
     environment:
       - SECRET_KEY=$SECRET_KEY
-      - DEBUG=True
-      - PRODUCTION=False
+      - DEBUG=False
+      - PRODUCTION=True
       - EXTERNAL_HOST_NAME=$EXTERNAL_HOST_NAME
       - POSTGRES_DB=$DB_NAME
       - POSTGRES_USER=$DB_NAME
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-
-    volumes:
-      - .:/home/appuser/code
     ports:
       - 8000:8000
     depends_on:
@@ -26,9 +23,3 @@ services:
       - POSTGRES_DB=$DB_NAME
       - POSTGRES_USER=$DB_NAME
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-
-volumes:
-  postgres_data:
