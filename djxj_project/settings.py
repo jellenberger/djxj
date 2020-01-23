@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import socket
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,6 +34,7 @@ if DEBUG:
 else:
     ALLOWED_HOSTS = []
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -46,7 +49,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "crispy_forms",
-    "debug_toolbar",
+    "debug_toolbar", # TODO make conditional on Debug?
     # Local
     "users",
     "pages",
@@ -57,11 +60,11 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",  # TODO make conditional on Debug?
 ]
 
 ROOT_URLCONF = "djxj_project.urls"
@@ -137,7 +140,10 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # Enabled for django-debug-toolbar to work
 # https://docs.djangoproject.com/en/3.0/ref/settings/#internal-ips
-INTERNAL_IPS = ["127.0.0.1"]
+# TODO: make conditional on debug? If so, import socket here
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
+
 
 AUTH_USER_MODEL = "users.CustomUser"
 
