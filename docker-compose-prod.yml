@@ -4,7 +4,7 @@ services:
   web:
     build: .
     # wait for db; see https://docs.docker.com/compose/startup-order/
-    command: ["wait-for-it", "db:5432", "--", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+    command: ["wait-for-it", "db:5432", "--", "gunicorn", "djxj_project.wsgi", "-b", "0.0.0.0:8000"]
     environment:
       - SECRET_KEY=$SECRET_KEY
       - DEBUG=False
