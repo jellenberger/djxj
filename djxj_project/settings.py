@@ -18,28 +18,29 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Development vs production settings
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-# Get environment type
+
+# Determine if this is a production environment
+# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
+# See resulting modifications the at end of this file
+
 PRODUCTION = os.environ.get("PRODUCTION", default="True") == "True"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", default="False") == "True"
 
-# SECURITY WARNING: don't run with wildcard hosts in production!
-# If PRODUCTION, then include host name specified in environment var
-if PRODUCTION:
-    ALLOWED_HOSTS = [os.environ.get("EXTERNAL_HOST_NAME")]
-    ALLOWED_HOSTS.extend(["localhost", "127.0.0.1"])
-else:
-    ALLOWED_HOSTS = ["*"]
+# Debug mode, if this is not a production environment
+# See resulting modifications at the end of this file
+# Also see project-level urls.py
+DEBUG = not PRODUCTION
 
 
-# Application definition
+# See modifications to this setting at end of this file
+ALLOWED_HOSTS = []
+
+
+# Applications
+# See modification to this setting at end of this file
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -59,10 +60,11 @@ INSTALLED_APPS = [
     "pages",
     "django_extensions",
 ]
-# In debug, add django-debug-toolbar
-if DEBUG:
-    INSTALLED_APPS.append("debug_toolbar")
 
+
+
+# Middleware
+# See modification to this setting at end of this file
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -74,10 +76,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-# In debug, add django-debug-toolbar after commonMiddleware
-if DEBUG:
-    mwidx = MIDDLEWARE.index("django.middleware.common.CommonMiddleware")
-    MIDDLEWARE.insert(mwidx + 1, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 
 ROOT_URLCONF = "djxj_project.urls"
@@ -156,22 +154,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 
-# In debug, enable internal ips for django-debug-toolbar
-# https://docs.djangoproject.com/en/3.0/ref/settings/#internal-ips
-
-if DEBUG:
-    import socket
-
-    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-    INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
-
-
+# Custom user model
 AUTH_USER_MODEL = "users.CustomUser"
 
+
+# Email
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
-# Django-Allauth Config
+# Django-Allauth config
 
 LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_REDIRECT_URL = "home"
@@ -191,9 +182,11 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 
 
-# Production security settings
-
+# Change settings based on environment type
 if PRODUCTION:
+    ALLOWED_HOSTS = [os.environ.get("EXTERNAL_HOST_NAME")]
+    ALLOWED_HOSTS.extend(["localhost", "127.0.0.1"])
+
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = "DENY"
     SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
@@ -204,3 +197,20 @@ if PRODUCTION:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+elif DEBUG:
+    # Allowed hosts
+    # SECURITY WARNING: don't run with wildcard hosts in production!
+    ALLOWED_HOSTS = ["*"]
+
+    INSTALLED_APPS.append("debug_toolbar")
+
+    # Add django-debug-toolbar, after commonMiddleware
+    mwidx = MIDDLEWARE.index("django.middleware.common.CommonMiddleware")
+    MIDDLEWARE.insert(mwidx + 1, "debug_toolbar.middleware.DebugToolbarMiddleware")
+
+    # Enable internal ips for django-debug-toolbar
+    import socket
+
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
