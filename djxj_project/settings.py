@@ -31,10 +31,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 PRODUCTION = os.environ.get("PRODUCTION", default="True") == "True"
 
 
-# Debug mode, if this is not a production environment
-# See resulting modifications at the end of this file
-# Also see project-level urls.py
-DEBUG = not PRODUCTION
+# Debug mode
+# See modifications at the end of this file
+DEBUG = False
 
 
 # See modifications to this setting at end of this file
@@ -141,7 +140,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
 # Crispy forms settings
-
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 
@@ -189,16 +187,21 @@ if PRODUCTION:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-elif DEBUG:
+else:
+    # Debug is true if production is false
+    DEBUG = True
+
     # Allowed hosts
     # SECURITY WARNING: don't run with wildcard hosts in production!
     ALLOWED_HOSTS = ["*"]
 
+    # Django debug toolbar
     INSTALLED_APPS.append("debug_toolbar")
-
-    # Add django-debug-toolbar, after commonMiddleware
-    mwidx = MIDDLEWARE.index("django.middleware.common.CommonMiddleware")
-    MIDDLEWARE.insert(mwidx + 1, "debug_toolbar.middleware.DebugToolbarMiddleware")
+    # add toolbar middleware after commonMiddleware
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index("django.middleware.common.CommonMiddleware") + 1,
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    )
 
     # Enable internal ips for django-debug-toolbar
     import socket
