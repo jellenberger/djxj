@@ -1,17 +1,19 @@
 version: '3.7'
 
+# Dev docker-compose
+# Assumes a .env file assigning all env varibles
 services:
   web:
     build: .
     # wait for db; see https://docs.docker.com/compose/startup-order/
-    command: ["wait-for-it", "db:5432", "--", "gunicorn", "djxj_project.wsgi", "--reload", "-b", "0.0.0.0:8000"]
+    command: ["wait-for-it", "db:${POSTGRES_PORT}", "--", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+    # substitue command below to use Gunicorn instead of dev server
+    # command: ["wait-for-it", "db:${POSTGRES_PORT}", "--", "gunicorn", "djxj_project.wsgi", "--reload", "-b", "0.0.0.0:8000"]
     environment:
-      - SECRET_KEY=$SECRET_KEY
       - PRODUCTION=False
-      - EXTERNAL_HOST_NAME=$EXTERNAL_HOST_NAME
-      - POSTGRES_DB=$DB_NAME
-      - POSTGRES_USER=$DB_NAME
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - SECRET_KEY=${SECRET_KEY}
+      - EXTERNAL_HOST_NAME=${EXTERNAL_HOST_NAME}
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_USER}
 
     volumes:
       - .:/home/appuser/code
@@ -22,9 +24,9 @@ services:
   db:
     image: postgres:11-alpine
     environment:
-      - POSTGRES_DB=$DB_NAME
-      - POSTGRES_USER=$DB_NAME
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_DB=${POSTGRES_USER}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
     volumes:
       - postgres_data:/var/lib/postgresql/data/
