@@ -11,6 +11,7 @@ services:
     # command: ["wait-for-it", "db:${POSTGRES_PORT}", "--", "gunicorn", "djxj_project.wsgi", "--reload", "-b", "0.0.0.0:8000"]
     environment:
       - PRODUCTION=False
+      - DEBUG=True
       - SECRET_KEY=${SECRET_KEY}
       - EXTERNAL_HOST_NAME=${EXTERNAL_HOST_NAME}
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_USER}

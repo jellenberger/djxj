@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from django.contrib.messages import constants as messages
+
 import dj_database_url
 
 
@@ -27,13 +29,14 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # Determine if this is a production environment
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 # See resulting modifications the at end of this file
-
-PRODUCTION = os.environ.get("PRODUCTION", default="True") == "True"
+PRODUCTION = (os.environ.get("PRODUCTION", default="True")).lower().strip() == "true"
 
 
 # Debug mode
 # See modifications at the end of this file
-DEBUG = False
+DEBUG = (os.environ.get("DEBUG", default="False")).lower().strip() == "true"
+if PRODUCTION:
+    DEBUG = False
 
 
 # See modifications to this setting at end of this file
@@ -147,12 +150,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 AUTH_USER_MODEL = "users.CustomUser"
 
 
-# Email
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-
 # Django-Allauth config
-
+# See also the conditional settings at the end of this file
 LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 
@@ -163,12 +162,22 @@ AUTHENTICATION_BACKENDS = (
 
 SITE_ID = 1
 
-ACCOUNT_SESSION_REMEMBER = True
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_SESSION_REMEMBER = None  # None means user chooses
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
+ACCOUNT_USERNAME_REQUIRED = False  # False means username derived from email
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
+
+
+# Make message tags consistent with Bootstrap alert classes
+MESSAGE_TAGS = {
+    messages.DEBUG: "alert-info",
+    messages.INFO: "alert-info",
+    messages.SUCCESS: "alert-success",
+    messages.WARNING: "alert-warning",
+    messages.ERROR: "alert-danger",
+}
 
 
 # Change settings based on environment type
@@ -176,10 +185,11 @@ if PRODUCTION:
     ALLOWED_HOSTS = [os.environ.get("EXTERNAL_HOST_NAME")]
     ALLOWED_HOSTS.extend(["localhost", "127.0.0.1"])
 
+    # Improve security: most of these settings require https
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = "DENY"
     SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 3600
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -188,7 +198,10 @@ if PRODUCTION:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-else:
+    # Account adapter to accept no new users
+    ACCOUNT_ADAPTER = "users.adapters.NoNewUsersAccountAdapter"
+
+if DEBUG:
     # Debug is true if production is false
     DEBUG = True
 
@@ -203,6 +216,9 @@ else:
         MIDDLEWARE.index("django.middleware.common.CommonMiddleware") + 1,
         "debug_toolbar.middleware.DebugToolbarMiddleware",
     )
+
+    # Email
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
     # Enable internal ips for django-debug-toolbar
     import socket

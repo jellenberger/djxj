@@ -1,3 +1,3 @@
 # Djxj
 
-This is my fork of [djangox](https://github.com/wsvincent/djangox).
+This is a base Django project, originally based on [djangox](https://github.com/wsvincent/djangox).

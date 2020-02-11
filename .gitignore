@@ -18,3 +18,4 @@ __pycache__/
 # OS leftovers
 .DS_Store
 ._*
+.directory
