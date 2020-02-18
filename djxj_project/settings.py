@@ -55,14 +55,14 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",  # whitenoise needs to precede staticfiles
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    "django_extensions",
     # Third-party
     "allauth",
     "allauth.account",
     "crispy_forms",
     # Local
-    "users",
-    "pages",
-    "django_extensions",
+    "users.apps.UsersConfig",
+    "pages.apps.PagesConfig",
 ]
 
 
